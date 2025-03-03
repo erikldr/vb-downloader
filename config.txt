@@ -1,0 +1,2 @@
+pasta_destino=C:/Users/erik/Desktop
+prefixo_nome=audio
