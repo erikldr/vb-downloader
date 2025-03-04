@@ -1,2 +1,2 @@
-pasta_destino=C:/Users/erik/Desktop
-prefixo_nome=audio
+pasta_destino=
+prefixo_nome=voz_do_brasil
