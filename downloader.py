@@ -109,7 +109,8 @@ def executar_download(pasta_destino, prefixo_nome=PREFIXO_PADRAO, terminou_por_t
 
                 logging.info(f"Iniciando o download... Limite: {HORARIO_LIMITE}")
                 data_atual = datetime.date.today()
-                nome_arquivo = renomear_arquivo(data_atual, prefixo_nome)
+                nome_arquivo = prefixo_nome + ".mp3"
+                #nome_arquivo = renomear_arquivo(data_atual, prefixo_nome)
 
                 url1 = gerar_url1(data_atual)
                 logging.info(f"Tentando baixar da URL1: {url1}")
