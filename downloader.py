@@ -45,11 +45,6 @@ def baixar_audio(url, nome_arquivo, pasta_destino):
         logging.error(f"Ocorreu um erro inesperado: {e}")
         return False
 
-def renomear_arquivo(data_atual, prefixo_nome=PREFIXO_PADRAO):
-    """Retorna uma string com o nome do arquivo baseado na data e prefixo."""
-    nome_arquivo = f"{prefixo_nome}_{data_atual.strftime('%Y-%m-%d')}.mp3"
-    return nome_arquivo
-
 def verificar_dia_semana():
     """Verifica se é dia de semana (segunda a sexta)."""
     dia_semana = datetime.datetime.today().weekday()
@@ -109,8 +104,8 @@ def executar_download(pasta_destino, prefixo_nome=PREFIXO_PADRAO, terminou_por_t
 
                 logging.info(f"Iniciando o download... Limite: {HORARIO_LIMITE}")
                 data_atual = datetime.date.today()
+                # Usar diretamente o nome definido na GUI
                 nome_arquivo = prefixo_nome + ".mp3"
-                #nome_arquivo = renomear_arquivo(data_atual, prefixo_nome)
 
                 url1 = gerar_url1(data_atual)
                 logging.info(f"Tentando baixar da URL1: {url1}")

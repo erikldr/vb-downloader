@@ -1,6 +1,6 @@
 # gui.py
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import os
 import threading
 import downloader
@@ -10,50 +10,103 @@ class Application:
     def __init__(self, master=None):
         self.root = master
         self.root.title("VB Downloader")
+        self.root.configure(bg="#f0f0f0")  # Cor de fundo padrão
+        self.root.resizable(False, False)  # Impedir redimensionamento da janela
         self.config_file = "config.txt"
         self.pasta_destino = tk.StringVar(value="")
         self.prefixo_nome = tk.StringVar(value="audio")
         self.monitorando = [False]  # Usando uma lista para ser modificada dentro de threads
         self.thread_monitoramento = None
 
+        # Definir estilo
+        self.style = ttk.Style()
+        self.style.configure("TButton", padding=6, relief="flat", font=("Arial", 10))
+        self.style.configure("Green.TButton", background="#4caf50", foreground="black", font=("Arial", 10, "bold"))
+        self.style.configure("Red.TButton", background="#f44336", foreground="black", font=("Arial", 10, "bold"))
+        self.style.configure("TFrame", background="#f0f0f0")
+        self.style.configure("TLabel", background="#f0f0f0")
+        self.style.configure("Header.TLabel", font=("Arial", 11, "bold"))
+        self.style.configure("Title.TLabel", font=("Arial", 12, "bold"), foreground="#2c3e50")
+        self.style.configure("Credits.TFrame", relief="groove", borderwidth=1)
+
         self.load_config()
         self.create_widgets()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def create_widgets(self):
-        self.create_destination_widgets()
-        self.create_filename_widgets()
-        self.create_control_buttons()
+        self.create_main_frame()
+        self.create_credits_frame()
 
-    def create_destination_widgets(self):
-        self.frame_principal = tk.Frame(self.root)
-        self.frame_principal.pack(padx=10, pady=10)
+    def create_main_frame(self):
+        # Frame principal
+        self.frame_principal = ttk.Frame(self.root, padding="10 10 10 10", style="TFrame")
+        self.frame_principal.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        
+        # Pasta de destino
+        self.label_pasta = ttk.Label(self.frame_principal, text="Pasta de Destino:", style="Header.TLabel")
+        self.label_pasta.grid(row=0, column=0, sticky="w", pady=(0, 5))
 
-        self.label_pasta = tk.Label(self.frame_principal, text="Pasta de Destino:")
-        self.label_pasta.grid(row=0, column=0, sticky="w")
+        # Frame para pasta e botões
+        self.frame_pasta = ttk.Frame(self.frame_principal)
+        self.frame_pasta.grid(row=1, column=0, columnspan=3, sticky="ew")
+        self.frame_pasta.columnconfigure(0, weight=1)
 
-        self.entry_pasta = tk.Entry(self.frame_principal, textvariable=self.pasta_destino, width=40)
-        self.entry_pasta.grid(row=1, column=0, padx=5, pady=5)
+        self.entry_pasta = ttk.Entry(self.frame_pasta, textvariable=self.pasta_destino, width=40)
+        self.entry_pasta.grid(row=0, column=0, padx=(0, 5), sticky="ew")
 
-        self.botao_selecionar_pasta = tk.Button(self.frame_principal, text="...", command=self.selecionar_pasta)
-        self.botao_selecionar_pasta.grid(row=1, column=1, padx=5)
+        self.botao_selecionar_pasta = ttk.Button(self.frame_pasta, text="📁", width=3, command=self.selecionar_pasta)
+        self.botao_selecionar_pasta.grid(row=0, column=1, padx=2)
+        
+        # Nome do arquivo
+        self.label_nome = ttk.Label(self.frame_principal, text="Nome do Arquivo:", style="Header.TLabel")
+        self.label_nome.grid(row=2, column=0, sticky="w", pady=(15, 5))
 
-        self.botao_abrir_pasta = tk.Button(self.frame_principal, text="Abrir Pasta", command=self.abrir_pasta)
-        self.botao_abrir_pasta.grid(row=1, column=2, padx=5)
+        self.entry_nome = ttk.Entry(self.frame_principal, textvariable=self.prefixo_nome, width=40)
+        self.entry_nome.grid(row=3, column=0, columnspan=3, sticky="ew", padx=(0, 5))
+        
+        # Frame para botões de controle
+        self.frame_botoes = ttk.Frame(self.frame_principal)
+        self.frame_botoes.grid(row=4, column=0, columnspan=3, sticky="ew", pady=(15, 0))
+        self.frame_botoes.columnconfigure(0, weight=1)
+        self.frame_botoes.columnconfigure(1, weight=1)
+        
+        # Botões de controle com largura fixa
+        self.botao_iniciar = ttk.Button(self.frame_botoes, text="▶️ Iniciar", 
+                                       command=self.iniciar_monitoramento, style="Green.TButton", width=15)
+        self.botao_iniciar.grid(row=0, column=0, padx=(0, 5), sticky="ew")
 
-    def create_filename_widgets(self):
-        self.label_nome = tk.Label(self.frame_principal, text="Nome do Arquivo:")
-        self.label_nome.grid(row=2, column=0, sticky="w", pady=(10, 0))
+        self.botao_parar = ttk.Button(self.frame_botoes, text="⏹️ Parar", 
+                                     command=self.parar_monitoramento, state=tk.DISABLED, style="Red.TButton", width=15)
+        self.botao_parar.grid(row=0, column=1, padx=(5, 0), sticky="ew")
 
-        self.entry_nome = tk.Entry(self.frame_principal, textvariable=self.prefixo_nome, width=40)
-        self.entry_nome.grid(row=3, column=0, padx=5, pady=5)
-
-    def create_control_buttons(self):
-        self.botao_iniciar = tk.Button(self.frame_principal, text="Iniciar Monitoramento", command=self.iniciar_monitoramento)
-        self.botao_iniciar.grid(row=4, column=0, padx=5, pady=(10, 0), sticky='we')
-
-        self.botao_parar = tk.Button(self.frame_principal, text="Parar Monitoramento", command=self.parar_monitoramento, state=tk.DISABLED)
-        self.botao_parar.grid(row=4, column=1, padx=5, pady=(10, 0), sticky='we')
+    def create_credits_frame(self):
+        # Frame para os créditos
+        self.frame_creditos = ttk.Frame(self.root, style="Credits.TFrame")
+        self.frame_creditos.pack(padx=10, pady=(0, 10), fill=tk.X)
+        
+        # Título
+        self.label_titulo = ttk.Label(self.frame_creditos, text="Informações do Desenvolvedor", 
+                                     style="Title.TLabel", anchor="center")
+        self.label_titulo.pack(pady=(10, 5), fill=tk.X)
+        
+        # Frame para informações
+        self.frame_info = ttk.Frame(self.frame_creditos)
+        self.frame_info.pack(padx=20, pady=(0, 10), fill=tk.X)
+        
+        # Desenvolvedor
+        self.label_desenvolvedor = ttk.Label(self.frame_info, text="👨‍💻 Desenvolvido por: Erik Rocha")
+        self.label_desenvolvedor.pack(pady=(5, 2), anchor="center")
+        
+        # Contato
+        self.label_contato = ttk.Label(self.frame_info, text="📧 Contato: e.lucasrocha@gmail.com")
+        self.label_contato.pack(pady=2, anchor="center")
+        
+        # Chave PIX
+        self.label_pix_titulo = ttk.Label(self.frame_info, text="💰 Contribuições (PIX):", font=("Arial", 9, "bold"))
+        self.label_pix_titulo.pack(pady=(5, 2), anchor="center")
+        
+        self.label_pix = ttk.Label(self.frame_info, text="e.lucasrocha@gmail.com")
+        self.label_pix.pack(pady=(0, 5), anchor="center")
 
     def selecionar_pasta(self):
         pasta = filedialog.askdirectory()
@@ -72,7 +125,7 @@ class Application:
         prefixo = self.prefixo_nome.get()
 
         if not os.path.isdir(pasta):
-          messagebox.showerror("Erro", "Selecione uma pasta valida")
+          messagebox.showerror("Erro", "Selecione uma pasta válida")
           return
 
         if not re.fullmatch(r"^[a-zA-Z0-9_-]+$", prefixo):
@@ -84,7 +137,7 @@ class Application:
             return
 
         self.monitorando = [True]
-        self.botao_iniciar.config(text="Monitorando", state=tk.DISABLED)
+        self.botao_iniciar.config(text="▶️ Monitorando...", state=tk.DISABLED)
         self.botao_parar.config(state=tk.NORMAL)
 
         self.thread_monitoramento = threading.Thread(target=self.executar_download_thread, args=(pasta, prefixo, self.monitorando))
@@ -95,7 +148,7 @@ class Application:
         terminou_por_tempo = [False]
         downloader.executar_download(pasta, prefixo, terminou_por_tempo, monitorando)
         self.monitorando[0] = False
-        self.botao_iniciar.config(text="Iniciar Monitoramento", state=tk.NORMAL)
+        self.botao_iniciar.config(text="▶️ Iniciar", state=tk.NORMAL)
         self.botao_parar.config(state=tk.DISABLED)
 
         if terminou_por_tempo[0]:
@@ -106,7 +159,7 @@ class Application:
             print("Parando o monitoramento...")
             self.monitorando[0] = False
             self.botao_parar.config(state=tk.DISABLED)
-            self.botao_iniciar.config(state=tk.NORMAL, text="Iniciar Monitoramento")
+            self.botao_iniciar.config(state=tk.NORMAL, text="▶️ Iniciar")
 
     def load_config(self):
         try:
@@ -134,6 +187,7 @@ class Application:
         self.save_config()
         self.root.destroy()
 
-root = tk.Tk()
-Application(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = Application(root)
+    root.mainloop()
