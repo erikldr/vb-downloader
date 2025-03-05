@@ -111,6 +111,53 @@ cd caminho/para/vb-downloader
 python3 -m vb_downloader.gui
 ```
 
+### Solução de Problemas
+
+#### Comando 'vb-downloader' não reconhecido
+
+Se você receber um erro como "'vb-downloader' não é reconhecido como um comando interno ou externo", isso significa que o diretório de scripts do Python não está no PATH do sistema. Você pode resolver isso de duas maneiras:
+
+1. **Adicionar o diretório de scripts ao PATH**:
+   
+   No Windows:
+   - Localize o diretório de scripts do Python (geralmente `C:\Users\<seu-usuario>\AppData\Local\Programs\Python\Python3x\Scripts` ou `C:\Python3x\Scripts`)
+   - Adicione este diretório ao PATH do sistema:
+     - Abra o Painel de Controle > Sistema > Configurações avançadas do sistema
+     - Clique em "Variáveis de Ambiente"
+     - Edite a variável "Path" e adicione o caminho para o diretório de scripts
+     - Reinicie o prompt de comando
+
+   No Linux/macOS:
+   - Adicione ao seu arquivo .bashrc ou .zshrc:
+     ```bash
+     export PATH="$PATH:$HOME/.local/bin"
+     ```
+   - Reinicie o terminal ou execute `source ~/.bashrc`
+
+2. **Executar usando o módulo Python**:
+   ```bash
+   python -m vb_downloader.gui
+   ```
+
+#### Erro relacionado ao tkinter
+
+Se você receber um erro relacionado ao tkinter, isso significa que a biblioteca gráfica não está instalada:
+
+No Windows:
+- Reinstale o Python e certifique-se de marcar a opção "tcl/tk and IDLE" durante a instalação
+
+No Linux:
+```bash
+sudo apt-get install python3-tk  # Para Ubuntu/Debian
+sudo dnf install python3-tkinter  # Para Fedora
+sudo pacman -S tk                # Para Arch Linux
+```
+
+No macOS:
+```bash
+brew install python-tk
+```
+
 ### Utilizando o Aplicativo
 
 1. Após iniciar o aplicativo, você verá a interface gráfica do VB Downloader
