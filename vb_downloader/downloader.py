@@ -1,9 +1,17 @@
-# downloader.py
+"""
+Módulo de download para o programa 'A Voz do Brasil'.
+
+Este módulo contém as funções necessárias para baixar automaticamente
+o programa 'A Voz do Brasil' em dias úteis, dentro de um horário específico.
+"""
+
 import requests
 import os
 import datetime
 import time
 import logging
+import appdirs
+import sys
 
 # --- Constantes ---
 HORARIO_INICIAL = datetime.time(20, 20)
@@ -12,13 +20,51 @@ TEMPO_ESPERA_TENTATIVA = 300  # 5 minutos em segundos
 TEMPO_ESPERA_INICIAL = 1200  # 20 minutos em segundos
 PASTA_PADRAO = "downloads"
 PREFIXO_PADRAO = "voz_do_brasil"
-LOG_FILE = 'download.log'
 
 # --- Configuração do Logging ---
-logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def configurar_logging():
+    """Configura o sistema de logging para o aplicativo."""
+    # Obter diretório de dados do usuário
+    data_dir = appdirs.user_data_dir("vb-downloader", "erikrocha")
+    
+    # Criar diretório se não existir
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    
+    # Definir caminho do arquivo de log
+    log_file = os.path.join(data_dir, 'download.log')
+    
+    # Configurar logging
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    # Adicionar handler para console se estiver em modo interativo
+    if sys.stdout.isatty():
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)
+    
+    return log_file
+
+LOG_FILE = configurar_logging()
 
 def baixar_audio(url, nome_arquivo, pasta_destino):
-    """Baixa um arquivo de áudio, renomeia e salva na pasta de destino."""
+    """
+    Baixa um arquivo de áudio, renomeia e salva na pasta de destino.
+    
+    Args:
+        url (str): URL do arquivo de áudio
+        nome_arquivo (str): Nome para salvar o arquivo
+        pasta_destino (str): Caminho da pasta onde o arquivo será salvo
+        
+    Returns:
+        bool: True se o download foi bem-sucedido, False caso contrário
+    """
     try:
         logging.info(f"Iniciando download de: {url}")
         response = requests.get(url, stream=True)
@@ -46,32 +92,77 @@ def baixar_audio(url, nome_arquivo, pasta_destino):
         return False
 
 def verificar_dia_semana():
-    """Verifica se é dia de semana (segunda a sexta)."""
+    """
+    Verifica se é dia de semana (segunda a sexta).
+    
+    Returns:
+        bool: True se for dia de semana, False caso contrário
+    """
     dia_semana = datetime.datetime.today().weekday()
     return dia_semana < 5
 
 def verificar_horario(limite_horario):
-    """Verifica se o horário atual é antes do limite."""
+    """
+    Verifica se o horário atual é antes do limite.
+    
+    Args:
+        limite_horario (datetime.time): Horário limite
+        
+    Returns:
+        bool: True se o horário atual for antes do limite, False caso contrário
+    """
     horario_atual = datetime.datetime.now().time()
     return horario_atual <= limite_horario
 
 def verificar_horario_inicial(horario_inicial):
-    """Verifica se o horário atual é igual ou posterior ao horário inicial."""
+    """
+    Verifica se o horário atual é igual ou posterior ao horário inicial.
+    
+    Args:
+        horario_inicial (datetime.time): Horário inicial
+        
+    Returns:
+        bool: True se o horário atual for igual ou posterior ao horário inicial
+    """
     horario_atual = datetime.datetime.now().time()
     return horario_atual >= horario_inicial
 
 def gerar_url1(date):
-    """Gera a URL1 de download com base na data."""
+    """
+    Gera a URL1 de download com base na data.
+    
+    Args:
+        date (datetime.date): Data para gerar a URL
+        
+    Returns:
+        str: URL formatada
+    """
     url1 = f"https://audios.ebc.com.br/radiogov/{date.year}/{date.month:02d}/{date.day:02d}-{date.month:02d}-{date.year}-a-voz-do-brasil.mp3"
     return url1
 
 def gerar_url2(date):
-    """Gera a URL2 de download com base na data."""
+    """
+    Gera a URL2 de download com base na data.
+    
+    Args:
+        date (datetime.date): Data para gerar a URL
+        
+    Returns:
+        str: URL formatada
+    """
     url2 = f"https://radiogov.ebc.com.br/programas/a-voz-do-brasil-download/{date.day:02d}-{date.month:02d}-{date.year}/@@download/file"
     return url2
 
 def executar_download(pasta_destino, prefixo_nome=PREFIXO_PADRAO, terminou_por_tempo=None, monitorando=None):
-    """Executa o processo de download, verificando dia, horário e tentativas."""
+    """
+    Executa o processo de download, verificando dia, horário e tentativas.
+    
+    Args:
+        pasta_destino (str): Caminho da pasta onde os arquivos serão salvos
+        prefixo_nome (str, optional): Prefixo para o nome do arquivo. Padrão é "voz_do_brasil"
+        terminou_por_tempo (list, optional): Lista com um booleano para indicar se terminou por tempo
+        monitorando (list, optional): Lista com um booleano para controlar o monitoramento
+    """
     logging.info("Iniciando a rotina de download.")
     if not os.path.exists(pasta_destino):
         os.makedirs(pasta_destino)

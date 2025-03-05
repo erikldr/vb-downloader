@@ -57,6 +57,16 @@ python3 --version
 
 ### 2. Instalar o VB Downloader
 
+#### Método 1: Instalação via pip (Recomendado)
+
+```bash
+# Instale diretamente do PyPI
+pip install vb-downloader
+# Em alguns sistemas pode ser necessário usar pip3 em vez de pip
+```
+
+#### Método 2: Instalação a partir do código-fonte
+
 ```bash
 # Clone o repositório ou baixe os arquivos
 git clone https://github.com/seu-usuario/vb-downloader.git
@@ -65,8 +75,8 @@ git clone https://github.com/seu-usuario/vb-downloader.git
 # Entre na pasta do projeto
 cd vb-downloader
 
-# Instale as dependências
-pip install -r requirements.txt
+# Instale o pacote em modo de desenvolvimento
+pip install -e .
 # Em alguns sistemas pode ser necessário usar pip3 em vez de pip
 ```
 
@@ -74,13 +84,22 @@ pip install -r requirements.txt
 
 ### Executando o Programa
 
+Após instalar o pacote via pip, você pode executar o programa diretamente do terminal:
+
+```bash
+# Execute o comando
+vb-downloader
+```
+
+Se você instalou a partir do código-fonte, pode executar:
+
 #### Windows
 ```bash
 # Navegue até a pasta do projeto
 cd caminho\para\vb-downloader
 
 # Execute o programa
-python gui.py
+python -m vb_downloader.gui
 ```
 
 #### macOS/Linux
@@ -89,7 +108,7 @@ python gui.py
 cd caminho/para/vb-downloader
 
 # Execute o programa
-python3 gui.py
+python3 -m vb_downloader.gui
 ```
 
 ### Utilizando o Aplicativo

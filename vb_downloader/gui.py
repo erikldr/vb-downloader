@@ -1,18 +1,41 @@
-# gui.py
+"""
+Interface gráfica para o VB Downloader.
+
+Este módulo implementa a interface gráfica do aplicativo VB Downloader,
+permitindo ao usuário configurar e controlar o download do programa 'A Voz do Brasil'.
+"""
+
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import os
 import threading
-import downloader
 import re
+import appdirs
+
+# Importação relativa dentro do pacote
+from . import downloader
 
 class Application:
+    """Classe principal da aplicação."""
+    
     def __init__(self, master=None):
+        """
+        Inicializa a aplicação.
+        
+        Args:
+            master: Janela principal do Tkinter
+        """
         self.root = master
         self.root.title("VB Downloader")
         self.root.configure(bg="#f0f0f0")  # Cor de fundo padrão
         self.root.resizable(False, False)  # Impedir redimensionamento da janela
-        self.config_file = "config.txt"
+        
+        # Configurar diretório de dados do usuário
+        self.data_dir = appdirs.user_data_dir("vb-downloader", "erikrocha")
+        if not os.path.exists(self.data_dir):
+            os.makedirs(self.data_dir)
+        
+        self.config_file = os.path.join(self.data_dir, "config.txt")
         self.pasta_destino = tk.StringVar(value="")
         self.prefixo_nome = tk.StringVar(value="audio")
         self.monitorando = [False]  # Usando uma lista para ser modificada dentro de threads
@@ -34,10 +57,12 @@ class Application:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def create_widgets(self):
+        """Cria os widgets da interface."""
         self.create_main_frame()
         self.create_credits_frame()
 
     def create_main_frame(self):
+        """Cria o frame principal com os controles."""
         # Frame principal
         self.frame_principal = ttk.Frame(self.root, padding="10 10 10 10", style="TFrame")
         self.frame_principal.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
@@ -80,6 +105,7 @@ class Application:
         self.botao_parar.grid(row=0, column=1, padx=(5, 0), sticky="ew")
 
     def create_credits_frame(self):
+        """Cria o frame de créditos."""
         # Frame para os créditos
         self.frame_creditos = ttk.Frame(self.root, style="Credits.TFrame")
         self.frame_creditos.pack(padx=10, pady=(0, 10), fill=tk.X)
@@ -109,11 +135,13 @@ class Application:
         self.label_pix.pack(pady=(0, 5), anchor="center")
 
     def selecionar_pasta(self):
+        """Abre o diálogo para selecionar a pasta de destino."""
         pasta = filedialog.askdirectory()
         if pasta:
             self.pasta_destino.set(pasta)
 
     def abrir_pasta(self):
+        """Abre a pasta de destino no explorador de arquivos."""
         pasta = self.pasta_destino.get()
         if pasta and os.path.isdir(pasta):
             os.startfile(pasta) if os.name == 'nt' else os.system(f'xdg-open "{pasta}"')
@@ -121,6 +149,7 @@ class Application:
             messagebox.showerror("Erro", "Pasta inválida ou não selecionada.")
 
     def iniciar_monitoramento(self):
+        """Inicia o monitoramento para download."""
         pasta = self.pasta_destino.get()
         prefixo = self.prefixo_nome.get()
 
@@ -145,6 +174,14 @@ class Application:
         self.thread_monitoramento.start()
 
     def executar_download_thread(self, pasta, prefixo, monitorando):
+        """
+        Executa o download em uma thread separada.
+        
+        Args:
+            pasta (str): Pasta de destino
+            prefixo (str): Prefixo do nome do arquivo
+            monitorando (list): Lista com um booleano para controlar o monitoramento
+        """
         terminou_por_tempo = [False]
         downloader.executar_download(pasta, prefixo, terminou_por_tempo, monitorando)
         self.monitorando[0] = False
@@ -155,6 +192,7 @@ class Application:
             messagebox.showinfo("Aviso", "Tempo limite atingido (20:58). O processo será encerrado até o próximo dia útil.")
 
     def parar_monitoramento(self):
+        """Para o monitoramento."""
         if self.monitorando[0]:
             print("Parando o monitoramento...")
             self.monitorando[0] = False
@@ -162,6 +200,7 @@ class Application:
             self.botao_iniciar.config(state=tk.NORMAL, text="▶️ Iniciar")
 
     def load_config(self):
+        """Carrega as configurações do arquivo."""
         try:
             with open(self.config_file, "r") as f:
                 for line in f:
@@ -179,15 +218,23 @@ class Application:
             print("Arquivo de configuração corrompido. Usando valores padrão.")
 
     def save_config(self):
+        """Salva as configurações no arquivo."""
         with open(self.config_file, "w") as f:
             f.write(f"pasta_destino={self.pasta_destino.get()}\n")
             f.write(f"prefixo_nome={self.prefixo_nome.get()}\n")
 
     def on_closing(self):
+        """Manipulador para o evento de fechamento da janela."""
         self.save_config()
         self.root.destroy()
 
-if __name__ == "__main__":
+
+def main():
+    """Função principal para iniciar a aplicação."""
     root = tk.Tk()
     app = Application(root)
     root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
