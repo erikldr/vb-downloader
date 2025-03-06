@@ -2,6 +2,12 @@
 
 Um aplicativo para download automático do programa "A Voz do Brasil" para emissoras de rádio.
 
+## Novidades na versão 0.1.2
+
+- Adicionado suporte para URLs alternativas sem zero à esquerda no dia
+- Maior robustez no processo de download com tentativas em quatro fontes diferentes
+- Melhor compatibilidade com diferentes formatos de URL do programa
+
 ## Sobre o Projeto
 
 O VB Downloader foi desenvolvido para automatizar o processo de download diário do programa "A Voz do Brasil", transmitido de segunda a sexta-feira. Este aplicativo é utilizado por várias emissoras de rádio em todo o Brasil para facilitar a retransmissão do programa obrigatório.
@@ -9,7 +15,8 @@ O VB Downloader foi desenvolvido para automatizar o processo de download diário
 ## Funcionalidades
 
 - Download automático do programa "A Voz do Brasil" em dias úteis
-- Tentativas em múltiplas fontes para garantir o sucesso do download
+- Tentativas em múltiplas fontes (quatro URLs diferentes) para garantir o sucesso do download
+- Suporte a diferentes formatos de URL (com e sem zero à esquerda no dia)
 - Interface gráfica simples e intuitiva
 - Personalização da pasta de destino e nome do arquivo
 - Monitoramento contínuo com possibilidade de interrupção
@@ -167,7 +174,7 @@ brew install python-tk
 5. O programa irá:
    - Verificar se é dia útil (segunda a sexta-feira)
    - Aguardar até às 20:20 para iniciar o download
-   - Tentar baixar o programa de duas fontes diferentes
+   - Tentar baixar o programa de quatro fontes diferentes (com e sem zero à esquerda no dia)
    - Continuar tentando até às 20:58, caso necessário
    - Aguardar até o próximo dia útil após o download ou após o tempo limite
 6. Para interromper o monitoramento, clique em "⏹️ Parar"

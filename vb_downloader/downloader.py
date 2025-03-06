@@ -153,6 +153,32 @@ def gerar_url2(date):
     url2 = f"https://radiogov.ebc.com.br/programas/a-voz-do-brasil-download/{date.day:02d}-{date.month:02d}-{date.year}/@@download/file"
     return url2
 
+def gerar_url3(date):
+    """
+    Gera a URL3 de download com base na data (sem zero à esquerda no dia).
+    
+    Args:
+        date (datetime.date): Data para gerar a URL
+        
+    Returns:
+        str: URL formatada
+    """
+    url3 = f"https://audios.ebc.com.br/radiogov/{date.year}/{date.month:02d}/{date.day}-{date.month:02d}-{date.year}-a-voz-do-brasil.mp3"
+    return url3
+
+def gerar_url4(date):
+    """
+    Gera a URL4 de download com base na data (sem zero à esquerda no dia).
+    
+    Args:
+        date (datetime.date): Data para gerar a URL
+        
+    Returns:
+        str: URL formatada
+    """
+    url4 = f"https://radiogov.ebc.com.br/programas/a-voz-do-brasil-download/{date.day}-{date.month:02d}-{date.year}/@@download/file"
+    return url4
+
 def executar_download(pasta_destino, prefixo_nome=PREFIXO_PADRAO, terminou_por_tempo=None, monitorando=None):
     """
     Executa o processo de download, verificando dia, horário e tentativas.
@@ -216,7 +242,25 @@ def executar_download(pasta_destino, prefixo_nome=PREFIXO_PADRAO, terminou_por_t
                     download_realizado = True
                     break
 
-                logging.info("Falha em ambas as URLs. Aguardando 5 minutos para tentar novamente...")
+                url3 = gerar_url3(data_atual)
+                logging.info(f"Falha na URL2. Tentando baixar da URL3 (sem zero à esquerda no dia): {url3}")
+                sucesso = baixar_audio(url3, nome_arquivo, pasta_destino)
+
+                if sucesso:
+                    logging.info("Download bem-sucedido da URL3. Aguardando o próximo dia útil.")
+                    download_realizado = True
+                    break
+
+                url4 = gerar_url4(data_atual)
+                logging.info(f"Falha na URL3. Tentando baixar da URL4 (sem zero à esquerda no dia): {url4}")
+                sucesso = baixar_audio(url4, nome_arquivo, pasta_destino)
+
+                if sucesso:
+                    logging.info("Download bem-sucedido da URL4. Aguardando o próximo dia útil.")
+                    download_realizado = True
+                    break
+
+                logging.info("Falha em todas as URLs. Aguardando 5 minutos para tentar novamente...")
                 time.sleep(TEMPO_ESPERA_TENTATIVA)
 
             if not download_realizado:

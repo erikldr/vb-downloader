@@ -23,7 +23,7 @@ if sys.platform == 'win32':
 
 setup(
     name="vb-downloader",
-    version="0.1.1",
+    version="0.1.2",
     author="Erik Rocha",
     author_email="e.lucasrocha@gmail.com",
     description="Aplicativo para download automático do programa 'A Voz do Brasil'",
