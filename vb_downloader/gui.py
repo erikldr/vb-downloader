@@ -157,7 +157,7 @@ class Application:
           messagebox.showerror("Erro", "Selecione uma pasta válida")
           return
 
-        if not re.fullmatch(r"^[a-zA-Z0-9_-]+$", prefixo):
+        if not re.fullmatch(r"^[a-zA-Z0-9_ -]+$", prefixo):
           messagebox.showerror("Erro", "Nome do arquivo inválido. Use apenas letras, números, _ ou -.")
           return
 
