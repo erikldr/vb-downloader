@@ -14,6 +14,11 @@ except ImportError:
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+long_description += """
+This application is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+You may not use this application for commercial purposes.
+"""
+
 # Criar um script batch para Windows
 if sys.platform == 'win32':
     batch_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vb-downloader.bat')
@@ -23,7 +28,7 @@ if sys.platform == 'win32':
 
 setup(
     name="vb-downloader",
-    version="0.1.2",
+    version="0.1.3",
     author="Erik Rocha",
     author_email="e.lucasrocha@gmail.com",
     description="Aplicativo para download automático do programa 'A Voz do Brasil'",
@@ -37,9 +42,10 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Creative Commons Attribution-NonCommercial 4.0 International",
         "Operating System :: OS Independent",
     ],
+    license="CC BY-NC 4.0",
     python_requires=">=3.6",
     install_requires=[
         "requests>=2.25.0",
