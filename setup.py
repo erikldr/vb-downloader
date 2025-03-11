@@ -28,7 +28,7 @@ if sys.platform == 'win32':
 
 setup(
     name="vb-downloader",
-    version="0.1.3",
+    version="0.1.4",
     author="Erik Rocha",
     author_email="e.lucasrocha@gmail.com",
     description="Aplicativo para download automático do programa 'A Voz do Brasil'",
@@ -42,7 +42,6 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: Creative Commons Attribution-NonCommercial 4.0 International",
         "Operating System :: OS Independent",
     ],
     license="CC BY-NC 4.0",
